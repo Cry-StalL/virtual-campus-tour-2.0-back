@@ -1,0 +1,18 @@
+server:
+  port: 8080
+  mode: debug  # debug or release
+
+database:
+  driver: mysql
+  host: localhost
+  port: 3306
+  username: root
+  password: 123456
+  dbname: virtual_campus_tour
+  charset: utf8mb4
+  parseTime: true
+  loc: Local
+
+# jwt:
+#   secret: your-secret-key
+#   expire: 24h  # token expiration time 
