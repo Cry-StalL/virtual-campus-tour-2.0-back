@@ -20,6 +20,7 @@
 | username | string | 是 | 用户名，长度4-20个字符 |
 | email | string | 是 | 电子邮箱地址 |
 | password | string | 是 | 密码，长度6-20个字符 |
+| code | string | 是 | 邮箱生成的随机六位数字 |
 
 
 ## 请求示例
@@ -28,7 +29,9 @@
 {
   "username": "testuser",
   "email": "test@example.com",
-  "password": "qwerty123456"
+  "password": "qwerty123456",
+  "code": "123456"
+
 }
 ```
 
@@ -56,7 +59,6 @@
     "user_id": 1,
     "username": "testuser",
     "email": "test@example.com",
-    "phone": "13800138000",
     "created_at": "2024-03-20T10:00:00Z"
   }
 }
@@ -72,7 +74,7 @@
 - 响应示例：
 ```json
 {
-  "code": 400,
+  "code": 1002,
   "message": "用户名已存在",
   "data": null
 }
@@ -84,6 +86,7 @@
 | 200 | 0              | 成功响应     |
 | 400 | 1001           | 邮箱已注册   |
 |400  | 1002           | 用户名已存在 |
+|400  | 1003           | 验证码不正确 |
 
 
 
@@ -94,4 +97,5 @@
 | 400 | 请求参数错误 |
 | 400 | 用户名已存在 |
 | 400 | 邮箱已被注册 |
+| 400 | 验证码不正确  |
 | 500 | 服务器内部错误 |
