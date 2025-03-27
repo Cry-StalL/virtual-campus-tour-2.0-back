@@ -1,35 +1,53 @@
 package main
 
 import (
-	// "log"
-	// "virtual-campus-tour-2.0-back/internal/handler"
-	// "virtual-campus-tour-2.0-back/internal/middleware"
-	// "virtual-campus-tour-2.0-back/pkg/database"
-	// "virtual-campus-tour-2.0-back/pkg/logger"
+	"log"
+
+	"virtual-campus-tour-2.0-back/internal/handler"
+	"virtual-campus-tour-2.0-back/internal/model"
+	"virtual-campus-tour-2.0-back/pkg/database"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Initialize logger
-	// logger.Init()
+	// 1. 初始化数据库
+	dbConfig := &database.Config{
+		Driver:    "mysql",
+		Host:      "localhost",
+		Port:      3306,
+		Username:  "root",
+		Password:  "123456",
+		DBName:    "virtual_campus_tour",
+		Charset:   "utf8mb4",
+		ParseTime: true,
+		Loc:       "Local",
+	}
 
-	// Initialize database
-	// if err := database.Init(); err != nil {
-	// 	log.Fatalf("Failed to initialize database: %v", err)
-	// }
+	if err := database.InitDB(dbConfig); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 
-	// Create Gin engine
+	// 自动迁移数据库表
+	if err := database.GetDB().AutoMigrate(&model.User{}); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
+
+	// 2. 创建 Gin 引擎
 	r := gin.Default()
 
-	// Add middleware
-	// r.Use(middleware.Cors())
-	// r.Use(middleware.Logger())
-	// r.Use(middleware.Recovery())
+	// 3. 初始化处理器
+	userHandler := handler.NewUserHandler()
 
-	// Initialize routes
-	// handler.InitRoutes(r)
+	// 4. 注册路由
+	v1 := r.Group("/api/v1")
+	{
+		users := v1.Group("/users")
+		{
+			users.POST("/register", userHandler.Register)
+		}
+	}
 
-	// Start server
+	// 5. 启动服务器
 	r.Run(":8080")
 }
