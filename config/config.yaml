@@ -7,11 +7,16 @@ database:
   host: localhost
   port: 3306
   username: root
-  password: 123456
+  password: 666666
   dbname: virtual_campus_tour
   charset: utf8mb4
   parseTime: true
   loc: Local
+
+test:
+  database:
+    password: ${database.password}  # 使用与主数据库相同的密码
+    dbname: virtual_campus_tour_test  # 测试专用数据库名
 
 # jwt:
 #   secret: your-secret-key
