@@ -7,6 +7,7 @@ import (
 	"virtual-campus-tour-2.0-back/internal/dto"
 	"virtual-campus-tour-2.0-back/internal/model"
 	"virtual-campus-tour-2.0-back/pkg/database"
+	"virtual-campus-tour-2.0-back/pkg/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -57,5 +58,38 @@ func (s *UserService) Register(req *dto.RegisterRequest) (*dto.RegisterResponse,
 		Username:  user.Username,
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt.Format(time.RFC3339),
+	}, nil
+}
+
+// Login 用户登录
+func (s *UserService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
+	// 1. 验证邮箱格式（通过gin的binding标签已经验证）
+
+	// 2. 查询用户是否存在
+	var user model.User
+	if err := database.GetDB().Where("email = ?", req.Email).First(&user).Error; err != nil {
+		return nil, errors.New("该邮箱尚未注册，请先注册")
+	}
+
+	// 3. 验证密码
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		return nil, errors.New("密码错误")
+	}
+
+	// 4. 生成JWT token
+	token, err := utils.GenerateToken(user.ID, user.Email)
+	if err != nil {
+		return nil, errors.New("生成token失败")
+	}
+
+	// 5. 设置token过期时间（24小时后）
+	expireTime := time.Now().Add(24 * time.Hour)
+
+	return &dto.LoginResponse{
+		UserID:     user.ID,
+		Username:   user.Username,
+		Email:      user.Email,
+		Token:      token,
+		ExpireTime: expireTime.Format(time.RFC3339),
 	}, nil
 }
