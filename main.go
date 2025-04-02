@@ -2,11 +2,13 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"virtual-campus-tour-2.0-back/internal/handler"
 	"virtual-campus-tour-2.0-back/internal/model"
 	"virtual-campus-tour-2.0-back/pkg/database"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -42,6 +44,16 @@ func main() {
 
 	// 2. 创建 Gin 引擎
 	r := gin.Default()
+
+	// 添加CORS中间件
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // 允许所有来源，实际生产环境建议指定具体域名
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// 3. 初始化处理器
 	userHandler := handler.NewUserHandler()
