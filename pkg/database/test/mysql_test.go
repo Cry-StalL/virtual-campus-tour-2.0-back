@@ -3,22 +3,29 @@ package test
 import (
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"virtual-campus-tour-2.0-back/pkg/database"
 )
 
 func TestDatabaseConnection(t *testing.T) {
+	// 加载配置文件
+	viper.SetConfigFile("../../../config/config.yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		t.Fatalf("读取配置文件失败: %v", err)
+	}
+
 	// 从配置文件获取测试配置
 	config := &database.Config{
-		Driver:    "mysql",
-		Host:      "localhost",
-		Port:      3306,
-		Username:  "root",
-		Password:  "123456",              // 使用测试数据库的密码
-		DBName:    "virtual_campus_tour", // 使用测试专用数据库
-		Charset:   "utf8mb4",
-		ParseTime: true,
-		Loc:       "Local",
+		Driver:    viper.GetString("database.driver"),
+		Host:      viper.GetString("database.host"),
+		Port:      viper.GetInt("database.port"),
+		Username:  viper.GetString("database.username"),
+		Password:  viper.GetString("database.password"),
+		DBName:    viper.GetString("test.database.dbname"),
+		Charset:   viper.GetString("database.charset"),
+		ParseTime: viper.GetBool("database.parseTime"),
+		Loc:       viper.GetString("database.loc"),
 	}
 
 	// 注意：在实际项目中，应该使用如下方式从配置文件加载：

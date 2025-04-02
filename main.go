@@ -8,22 +8,29 @@ import (
 	"virtual-campus-tour-2.0-back/pkg/database"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	// 1. 初始化数据库
-	dbConfig := &database.Config{
-		Driver:    "mysql",
-		Host:      "localhost",
-		Port:      3306,
-		Username:  "root",
-		Password:  "123456",
-		DBName:    "virtual_campus_tour",
-		Charset:   "utf8mb4",
-		ParseTime: true,
-		Loc:       "Local",
+	// 使用viper加载配置
+	viper.SetConfigFile("config/config.yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Failed to read config file: %v", err)
 	}
 
+	dbConfig := &database.Config{
+		Driver:    viper.GetString("database.driver"),
+		Host:      viper.GetString("database.host"),
+		Port:      viper.GetInt("database.port"),
+		Username:  viper.GetString("database.username"),
+		Password:  viper.GetString("database.password"),
+		DBName:    viper.GetString("database.dbname"),
+		Charset:   viper.GetString("database.charset"),
+		ParseTime: viper.GetBool("database.parseTime"),
+		Loc:       viper.GetString("database.loc"),
+	}
+
+	// 1. 初始化数据库
 	if err := database.InitDB(dbConfig); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
