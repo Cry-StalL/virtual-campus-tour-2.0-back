@@ -7,6 +7,8 @@ import (
 	"virtual-campus-tour-2.0-back/internal/handler"
 	"virtual-campus-tour-2.0-back/internal/model"
 	"virtual-campus-tour-2.0-back/pkg/database"
+	"virtual-campus-tour-2.0-back/pkg/redis"
+	"virtual-campus-tour-2.0-back/pkg/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,6 +22,7 @@ func main() {
 		log.Fatalf("Failed to read config file: %v", err)
 	}
 
+	// 1. 初始化数据库
 	dbConfig := &database.Config{
 		Driver:    viper.GetString("database.driver"),
 		Host:      viper.GetString("database.host"),
@@ -32,7 +35,6 @@ func main() {
 		Loc:       viper.GetString("database.loc"),
 	}
 
-	// 1. 初始化数据库
 	if err := database.InitDB(dbConfig); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
@@ -42,7 +44,21 @@ func main() {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
-	// 2. 创建 Gin 引擎
+	// 2. 初始化Redis
+	if err := redis.InitRedis(); err != nil {
+		log.Fatalf("Failed to initialize Redis: %v", err)
+	}
+
+	// 3. 初始化邮件配置
+	utils.InitEmailConfig(
+		viper.GetString("email.host"),
+		viper.GetInt("email.port"),
+		viper.GetString("email.username"),
+		viper.GetString("email.password"),
+		viper.GetString("email.from"),
+	)
+
+	// 4. 创建 Gin 引擎
 	r := gin.Default()
 
 	// 添加CORS中间件
@@ -55,19 +71,20 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	// 3. 初始化处理器
+	// 5. 初始化处理器
 	userHandler := handler.NewUserHandler()
 
-	// 4. 注册路由
+	// 6. 注册路由
 	v1 := r.Group("/api/v1")
 	{
 		users := v1.Group("/users")
 		{
+			users.POST("/email-code", userHandler.GetEmailCode)
 			users.POST("/register", userHandler.Register)
 			users.POST("/login", userHandler.Login)
 		}
 	}
 
-	// 5. 启动服务器
+	// 7. 启动服务器
 	r.Run(":8080")
 }

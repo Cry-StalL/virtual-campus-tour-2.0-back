@@ -5,6 +5,7 @@ import (
 
 	"virtual-campus-tour-2.0-back/internal/dto"
 	"virtual-campus-tour-2.0-back/internal/service"
+	"virtual-campus-tour-2.0-back/pkg/redis"
 	"virtual-campus-tour-2.0-back/pkg/utils"
 
 	"github.com/gin-gonic/gin"
@@ -103,6 +104,70 @@ func (h *UserHandler) Login(c *gin.Context) {
 	}
 
 	// 4. 返回成功响应
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    resp,
+	})
+}
+
+// GetEmailCode 处理获取邮箱验证码请求
+func (h *UserHandler) GetEmailCode(c *gin.Context) {
+	// 1. 获取并验证请求参数
+	var req dto.GetEmailCodeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    2002,
+			"message": "邮箱格式不正确",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 2. 检查发送频率限制
+	ip := c.ClientIP()
+	if err := utils.CheckIPSendLimit(redis.GetClient(), ip); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    2004,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	if err := utils.CheckEmailSendInterval(redis.GetClient(), req.Email); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    2003,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	// 3. 调用服务层处理请求
+	resp, err := h.userService.GetEmailCode(&req)
+	if err != nil {
+		code := 400
+		message := err.Error()
+		switch message {
+		case "邮箱已被注册":
+			code = 2001
+		case "邮件发送失败":
+			code = 2005
+		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    code,
+			"message": message,
+			"data":    nil,
+		})
+		return
+	}
+
+	// 4. 更新发送记录
+	utils.UpdateEmailSendTime(redis.GetClient(), req.Email)
+	utils.UpdateIPSendCount(redis.GetClient(), ip)
+
+	// 5. 返回成功响应
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",

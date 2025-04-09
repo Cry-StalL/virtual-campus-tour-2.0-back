@@ -7,6 +7,7 @@ import (
 	"virtual-campus-tour-2.0-back/internal/dto"
 	"virtual-campus-tour-2.0-back/internal/model"
 	"virtual-campus-tour-2.0-back/pkg/database"
+	"virtual-campus-tour-2.0-back/pkg/redis"
 	"virtual-campus-tour-2.0-back/pkg/utils"
 
 	"golang.org/x/crypto/bcrypt"
@@ -16,6 +17,32 @@ type UserService struct{}
 
 func NewUserService() *UserService {
 	return &UserService{}
+}
+
+// GetEmailCode 获取邮箱验证码
+func (s *UserService) GetEmailCode(req *dto.GetEmailCodeRequest) (*dto.GetEmailCodeResponse, error) {
+	// 检查邮箱是否已注册
+	var existingUser model.User
+	if err := database.GetDB().Where("email = ?", req.Email).First(&existingUser).Error; err == nil {
+		return nil, errors.New("邮箱已被注册")
+	}
+
+	// 生成验证码
+	code := utils.GenerateCode()
+
+	// 存储验证码到Redis
+	if err := utils.StoreCode(redis.GetClient(), req.Email, code); err != nil {
+		return nil, errors.New("存储验证码失败")
+	}
+
+	// 发送验证码邮件
+	if err := utils.SendVerificationCode(req.Email, code); err != nil {
+		return nil, errors.New("邮件发送失败")
+	}
+
+	return &dto.GetEmailCodeResponse{
+		ExpireTime: utils.CodeExpireTime,
+	}, nil
 }
 
 // Register 用户注册
