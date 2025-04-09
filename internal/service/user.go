@@ -58,10 +58,10 @@ func (s *UserService) Register(req *dto.RegisterRequest) (*dto.RegisterResponse,
 		return nil, errors.New("用户名已存在")
 	}
 
-	// TODO: 验证邮箱验证码
-	// if !verifyEmailCode(req.Email, req.Code) {
-	// 	return nil, errors.New("验证码不正确")
-	// }
+	// 验证邮箱验证码
+	if err := utils.VerifyCode(redis.GetClient(), req.Email, req.Code); err != nil {
+		return nil, errors.New("验证码不正确")
+	}
 
 	// 加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
