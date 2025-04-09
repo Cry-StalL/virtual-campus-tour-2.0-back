@@ -22,11 +22,19 @@ const (
 
 // GenerateCode 生成6位数字验证码
 func GenerateCode() string {
-	b := make([]byte, 3)
+	// 生成一个6字节的随机数
+	b := make([]byte, 6)
 	rand.Read(b)
-	// 确保生成的数字在 0-999999 范围内
-	code := (int(b[0])%10)*100000 + (int(b[1])%10)*10000 + (int(b[2])%10)*1000 +
-		(int(b[0])%10)*100 + (int(b[1])%10)*10 + (int(b[2]) % 10)
+
+	// 将每个字节映射到0-9的范围内
+	var code int
+	for i := 0; i < 6; i++ {
+		// 使用更均匀的映射方法
+		digit := int(b[i]) % 10
+		code = code*10 + digit
+	}
+
+	// 格式化为6位数字字符串
 	return fmt.Sprintf("%06d", code)
 }
 
