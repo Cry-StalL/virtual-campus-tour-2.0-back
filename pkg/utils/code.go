@@ -24,7 +24,10 @@ const (
 func GenerateCode() string {
 	b := make([]byte, 3)
 	rand.Read(b)
-	return fmt.Sprintf("%06d", int(b[0])*10000+int(b[1])*100+int(b[2])%100)
+	// 确保生成的数字在 0-999999 范围内
+	code := (int(b[0])%10)*100000 + (int(b[1])%10)*10000 + (int(b[2])%10)*1000 +
+		(int(b[0])%10)*100 + (int(b[1])%10)*10 + (int(b[2]) % 10)
+	return fmt.Sprintf("%06d", code)
 }
 
 // StoreCode 存储验证码到Redis
@@ -39,6 +42,23 @@ func GetCode(redisClient *redis.Client, email string) (string, error) {
 	ctx := context.Background()
 	key := fmt.Sprintf("email_code:%s", email)
 	return redisClient.Get(ctx, key).Result()
+}
+
+// VerifyCode 验证邮箱验证码
+func VerifyCode(redisClient *redis.Client, email, code string) error {
+	storedCode, err := GetCode(redisClient, email)
+	if err != nil {
+		if err == redis.Nil {
+			return fmt.Errorf("验证码已过期")
+		}
+		return fmt.Errorf("验证码验证失败")
+	}
+
+	if storedCode != code {
+		return fmt.Errorf("验证码不正确")
+	}
+
+	return nil
 }
 
 // CheckEmailSendInterval 检查邮箱发送间隔
