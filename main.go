@@ -6,6 +6,8 @@ import (
 
 	"virtual-campus-tour-2.0-back/internal/handler"
 	"virtual-campus-tour-2.0-back/internal/model"
+	"virtual-campus-tour-2.0-back/internal/repository"
+	"virtual-campus-tour-2.0-back/internal/service"
 	"virtual-campus-tour-2.0-back/pkg/database"
 	"virtual-campus-tour-2.0-back/pkg/redis"
 	"virtual-campus-tour-2.0-back/pkg/utils"
@@ -40,7 +42,7 @@ func main() {
 	}
 
 	// 自动迁移数据库表
-	if err := database.GetDB().AutoMigrate(&model.User{}); err != nil {
+	if err := database.GetDB().AutoMigrate(&model.User{}, &model.Message{}); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
@@ -74,6 +76,11 @@ func main() {
 	// 5. 初始化处理器
 	userHandler := handler.NewUserHandler()
 
+	// 初始化消息相关的依赖
+	messageRepo := repository.NewMessageRepository(database.GetDB())
+	messageService := service.NewMessageService(messageRepo)
+	messageHandler := handler.NewMessageHandler(messageService)
+
 	// 6. 注册路由
 	v1 := r.Group("/api/v1")
 	{
@@ -82,6 +89,10 @@ func main() {
 			users.POST("/email-code", userHandler.GetEmailCode)
 			users.POST("/register", userHandler.Register)
 			users.POST("/login", userHandler.Login)
+
+			// 消息相关路由
+			users.POST("/messages", messageHandler.CreateMessage)
+			users.GET("/messages", messageHandler.GetMessages)
 		}
 	}
 
