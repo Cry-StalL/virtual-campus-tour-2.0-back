@@ -63,6 +63,16 @@ func main() {
 	// 4. 创建 Gin 引擎
 	r := gin.Default()
 
+	// 配置静态文件服务，用于存储和访问全景图资源
+	staticFS := r.Group("/assets")
+	staticFS.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type")
+		c.Next()
+	})
+	staticFS.Static("/", "./assets")
+
 	// 添加CORS中间件
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"}, // 允许所有来源，实际生产环境建议指定具体域名

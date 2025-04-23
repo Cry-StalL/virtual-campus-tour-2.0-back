@@ -1,1 +1,4 @@
 .idea
+# 忽略全景图资源文件
+assets/panos/
+assets/panos/**
