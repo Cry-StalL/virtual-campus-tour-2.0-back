@@ -120,3 +120,54 @@ func (s *UserService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
 		ExpireTime: expireTime.Format(time.RFC3339),
 	}, nil
 }
+
+// UpdateUsername 更新用户名
+func (s *UserService) UpdateUsername(req *dto.UpdateUsernameRequest) (*dto.UpdateUsernameResponse, error) {
+	// 检查用户是否存在
+	var user model.User
+	if err := database.GetDB().First(&user, req.UserID).Error; err != nil {
+		return nil, errors.New("用户不存在")
+	}
+
+	// 检查新用户名是否已存在
+	var existingUser model.User
+	if err := database.GetDB().Where("username = ? AND id != ?", req.Username, req.UserID).First(&existingUser).Error; err == nil {
+		return nil, errors.New("用户名已存在")
+	}
+
+	// 更新用户名
+	user.Username = req.Username
+	if err := database.GetDB().Save(&user).Error; err != nil {
+		return nil, errors.New("更新用户名失败")
+	}
+
+	return &dto.UpdateUsernameResponse{
+		Username:   user.Username,
+		UpdateTime: user.UpdatedAt.Format(time.RFC3339),
+	}, nil
+}
+
+// ResetPassword 重置密码
+func (s *UserService) ResetPassword(req *dto.ResetPasswordRequest) (*dto.ResetPasswordResponse, error) {
+	// 检查用户是否存在
+	var user model.User
+	if err := database.GetDB().First(&user, req.UserID).Error; err != nil {
+		return nil, errors.New("用户不存在")
+	}
+
+	// 加密新密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, errors.New("密码加密失败")
+	}
+
+	// 更新密码
+	user.Password = string(hashedPassword)
+	if err := database.GetDB().Save(&user).Error; err != nil {
+		return nil, errors.New("更新密码失败")
+	}
+
+	return &dto.ResetPasswordResponse{
+		UpdateTime: user.UpdatedAt.Format(time.RFC3339),
+	}, nil
+}

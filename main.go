@@ -99,6 +99,8 @@ func main() {
 			users.POST("/email-code", userHandler.GetEmailCode)
 			users.POST("/register", userHandler.Register)
 			users.POST("/login", userHandler.Login)
+			users.POST("/updateUsername", userHandler.UpdateUsername)
+			users.POST("/resetPassword", userHandler.ResetPassword)
 
 			// 消息相关路由
 			users.POST("/messages", messageHandler.CreateMessage)

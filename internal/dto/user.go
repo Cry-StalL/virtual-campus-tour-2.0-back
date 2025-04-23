@@ -30,3 +30,26 @@ type LoginResponse struct {
 	Token      string `json:"token"`
 	ExpireTime string `json:"expire_time"`
 }
+
+// UpdateUsernameRequest 更新用户名请求
+type UpdateUsernameRequest struct {
+	UserID   uint   `json:"userId" binding:"required"`
+	Username string `json:"username" binding:"required,min=4,max=20"`
+}
+
+// UpdateUsernameResponse 更新用户名响应
+type UpdateUsernameResponse struct {
+	Username   string `json:"username"`
+	UpdateTime string `json:"updateTime"`
+}
+
+// ResetPasswordRequest 重置密码请求
+type ResetPasswordRequest struct {
+	UserID   uint   `json:"userId" binding:"required"`
+	Password string `json:"password" binding:"required,min=6,max=20"`
+}
+
+// ResetPasswordResponse 重置密码响应
+type ResetPasswordResponse struct {
+	UpdateTime string `json:"updateTime"`
+}

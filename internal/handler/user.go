@@ -60,6 +60,86 @@ func (h *UserHandler) Register(c *gin.Context) {
 	})
 }
 
+// UpdateUsername 处理更新用户名请求
+func (h *UserHandler) UpdateUsername(c *gin.Context) {
+	// 1. 获取并验证请求参数
+	var req dto.UpdateUsernameRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 2. 调用服务层处理请求
+	resp, err := h.userService.UpdateUsername(&req)
+	if err != nil {
+		code := 400
+		message := err.Error()
+		switch message {
+		case "用户不存在":
+			code = 1001
+		case "用户名已存在":
+			code = 1002
+		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    code,
+			"message": message,
+			"data":    nil,
+		})
+		return
+	}
+
+	// 3. 返回成功响应
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "用户名更新成功",
+		"data":    resp,
+	})
+}
+
+// ResetPassword 处理重置密码请求
+func (h *UserHandler) ResetPassword(c *gin.Context) {
+	// 1. 获取并验证请求参数
+	var req dto.ResetPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 2. 调用服务层处理请求
+	resp, err := h.userService.ResetPassword(&req)
+	if err != nil {
+		code := 400
+		message := err.Error()
+		switch message {
+		case "用户不存在":
+			code = 1001
+		case "密码加密失败":
+			code = 1002
+		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    code,
+			"message": message,
+			"data":    nil,
+		})
+		return
+	}
+
+	// 3. 返回成功响应
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "密码重置成功",
+		"data":    resp,
+	})
+}
+
 // Login 处理用户登录请求
 func (h *UserHandler) Login(c *gin.Context) {
 	// 1. 获取并验证请求参数
