@@ -5,16 +5,20 @@ import (
 
 	"virtual-campus-tour-2.0-back/internal/dto"
 	"virtual-campus-tour-2.0-back/internal/service"
+	"virtual-campus-tour-2.0-back/pkg/redis"
+	"virtual-campus-tour-2.0-back/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
-	service *service.UserService
+	userService *service.UserService
 }
 
-func NewUserHandler(service *service.UserService) *UserHandler {
-	return &UserHandler{service: service}
+func NewUserHandler() *UserHandler {
+	return &UserHandler{
+		userService: service.NewUserService(),
+	}
 }
 
 // Register 处理用户注册请求
@@ -29,7 +33,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.service.Register(&req)
+	resp, err := h.userService.Register(&req)
 	if err != nil {
 		code := 400
 		message := err.Error()
@@ -50,25 +54,38 @@ func (h *UserHandler) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "注册成功",
+		"code":    0,
+		"message": "success",
 		"data":    resp,
 	})
 }
 
 // Login 处理用户登录请求
 func (h *UserHandler) Login(c *gin.Context) {
+	// 1. 获取并验证请求参数
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "请求参数错误",
+			"code":    1003,
+			"message": "邮箱格式不正确",
 			"data":    nil,
 		})
 		return
 	}
 
-	resp, err := h.service.Login(&req)
+	// 2. 检查登录频率限制
+	ip := c.ClientIP()
+	if utils.IsLoginTooFrequent(ip) {
+		c.JSON(http.StatusTooManyRequests, gin.H{
+			"code":    1004,
+			"message": "登录尝试次数过多，请稍后再试",
+			"data":    nil,
+		})
+		return
+	}
+
+	// 3. 调用服务层处理登录
+	resp, err := h.userService.Login(&req)
 	if err != nil {
 		code := 400
 		message := err.Error()
@@ -86,26 +103,49 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// 4. 返回成功响应
 	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "登录成功",
+		"code":    0,
+		"message": "success",
 		"data":    resp,
 	})
 }
 
 // GetEmailCode 处理获取邮箱验证码请求
 func (h *UserHandler) GetEmailCode(c *gin.Context) {
+	// 1. 获取并验证请求参数
 	var req dto.GetEmailCodeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "请求参数错误",
+			"code":    2002,
+			"message": "邮箱格式不正确",
 			"data":    nil,
 		})
 		return
 	}
 
-	resp, err := h.service.GetEmailCode(&req)
+	// 2. 检查发送频率限制
+	ip := c.ClientIP()
+	if err := utils.CheckIPSendLimit(redis.GetClient(), ip); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    2004,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	if err := utils.CheckEmailSendInterval(redis.GetClient(), req.Email); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    2003,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	// 3. 调用服务层处理请求
+	resp, err := h.userService.GetEmailCode(&req)
 	if err != nil {
 		code := 400
 		message := err.Error()
@@ -123,82 +163,14 @@ func (h *UserHandler) GetEmailCode(c *gin.Context) {
 		return
 	}
 
+	// 4. 更新发送记录
+	utils.UpdateEmailSendTime(redis.GetClient(), req.Email)
+	utils.UpdateIPSendCount(redis.GetClient(), ip)
+
+	// 5. 返回成功响应
 	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "验证码发送成功",
+		"code":    0,
+		"message": "success",
 		"data":    resp,
-	})
-}
-
-// UpdateUsername 更新用户名
-func (h *UserHandler) UpdateUsername(c *gin.Context) {
-	var req dto.UpdateUsernameRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "请求参数错误",
-			"data":    nil,
-		})
-		return
-	}
-
-	err := h.service.UpdateUsername(req.UserID, req.Username)
-	if err != nil {
-		code := 500
-		message := err.Error()
-		switch message {
-		case "用户名已被占用":
-			code = 409
-		case "用户不存在":
-			code = 404
-		}
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    code,
-			"message": message,
-			"data":    nil,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "用户名更新成功",
-		"data": gin.H{
-			"username": req.Username,
-		},
-	})
-}
-
-// ResetPassword 重置密码
-func (h *UserHandler) ResetPassword(c *gin.Context) {
-	var req dto.ResetPasswordRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "请求参数错误",
-			"data":    nil,
-		})
-		return
-	}
-
-	err := h.service.UpdatePassword(req.UserID, req.Password)
-	if err != nil {
-		code := 500
-		message := err.Error()
-		if message == "用户不存在" {
-			code = 404
-		}
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    code,
-			"message": message,
-			"data":    nil,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "密码重置成功",
-		"data":    nil,
 	})
 }
