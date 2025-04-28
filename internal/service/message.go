@@ -18,13 +18,14 @@ func NewMessageService(repo *repository.MessageRepository) *MessageService {
 }
 
 // CreateMessage 创建新留言
-func (s *MessageService) CreateMessage(content, userID, username, panoramaID string) (*model.Message, error) {
+func (s *MessageService) CreateMessage(content string, userID uint64, username string, panoramaID string, location string) (*model.Message, error) {
 	message := &model.Message{
 		ID:         uuid.New().String(),
 		Content:    content,
 		UserID:     userID,
 		Username:   username,
 		PanoramaID: panoramaID,
+		Location:   location,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
@@ -40,4 +41,9 @@ func (s *MessageService) CreateMessage(content, userID, username, panoramaID str
 // GetMessagesByPanoramaID 获取指定全景图的留言列表
 func (s *MessageService) GetMessagesByPanoramaID(panoramaID string) ([]model.Message, error) {
 	return s.repo.GetByPanoramaID(panoramaID)
+}
+
+// GetMessagesByUserID 获取指定用户的所有留言
+func (s *MessageService) GetMessagesByUserID(userID uint64) ([]model.Message, error) {
+	return s.repo.GetByUserID(userID)
 }
