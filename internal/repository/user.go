@@ -30,33 +30,22 @@ func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
 }
 
 // GetByID 通过ID获取用户
-func (r *UserRepository) GetByID(id string) (*model.User, error) {
+func (r *UserRepository) GetByID(id uint64) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("id = ?", id).First(&user).Error
-	if err != nil {
+	if err := r.db.First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
 // UpdateUsername 更新用户名
-func (r *UserRepository) UpdateUsername(id, username string) error {
-	return r.db.Model(&model.User{}).
-		Where("id = ?", id).
-		Updates(map[string]interface{}{
-			"username":   username,
-			"updated_at": gorm.Expr("CURRENT_TIMESTAMP"),
-		}).Error
+func (r *UserRepository) UpdateUsername(id uint64, username string) error {
+	return r.db.Model(&model.User{}).Where("id = ?", id).Update("username", username).Error
 }
 
 // UpdatePassword 更新密码
-func (r *UserRepository) UpdatePassword(id, password string) error {
-	return r.db.Model(&model.User{}).
-		Where("id = ?", id).
-		Updates(map[string]interface{}{
-			"password":   password,
-			"updated_at": gorm.Expr("CURRENT_TIMESTAMP"),
-		}).Error
+func (r *UserRepository) UpdatePassword(id uint64, password string) error {
+	return r.db.Model(&model.User{}).Where("id = ?", id).Update("password", password).Error
 }
 
 // CheckUsernameExists 检查用户名是否已存在

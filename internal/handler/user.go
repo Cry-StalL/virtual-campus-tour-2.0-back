@@ -6,6 +6,8 @@ import (
 	"virtual-campus-tour-2.0-back/internal/dto"
 	"virtual-campus-tour-2.0-back/internal/service"
 
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -136,7 +138,19 @@ func (h *UserHandler) UpdateUsername(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
-			"message": "请求参数错误",
+			"message": "请求参数错误: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	// 添加日志记录
+	log.Printf("更新用户名请求: UserID=%d, Username=%s", req.UserID, req.Username)
+
+	if req.UserID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "用户ID不能为0",
 			"data":    nil,
 		})
 		return
@@ -146,10 +160,7 @@ func (h *UserHandler) UpdateUsername(c *gin.Context) {
 	if err != nil {
 		code := 500
 		message := err.Error()
-		switch message {
-		case "用户名已被占用":
-			code = 409
-		case "用户不存在":
+		if message == "用户不存在" {
 			code = 404
 		}
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -161,11 +172,9 @@ func (h *UserHandler) UpdateUsername(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
+		"code":    0,
 		"message": "用户名更新成功",
-		"data": gin.H{
-			"username": req.Username,
-		},
+		"data":    nil,
 	})
 }
 
@@ -201,4 +210,20 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 		"message": "密码重置成功",
 		"data":    nil,
 	})
+}
+
+func (h *UserHandler) UpdatePassword(c *gin.Context) {
+	var req dto.UpdatePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := h.service.UpdatePassword(req.UserID, req.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "密码更新成功"})
 }

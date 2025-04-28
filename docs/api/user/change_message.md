@@ -23,14 +23,14 @@
 
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| userId | string | 是 | 用户ID |
+| userId | unsigned big int | 是 | 用户ID |
 | username | string | 是 | 新用户名 |
 
 #### 请求示例
 
 ```json
 {
-  "userId": "12345",
+  "userId": 12345,
   "username": "newUsername"
 }
 ```
@@ -81,14 +81,14 @@
 
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| userId | string | 是 | 用户ID |
+| userId | unsigned big int | 是 | 用户ID |
 | password | string | 是 | 新密码 |
 
 #### 请求示例
 
 ```json
 {
-  "userId": "12345",
+  "userId": 12345,
   "password": "newSecurePassword"
 }
 ```

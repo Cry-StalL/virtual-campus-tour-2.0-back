@@ -42,13 +42,18 @@ func main() {
 	}
 
 	// 自动迁移数据库表
-	if err := database.GetDB().AutoMigrate(&model.User{}, &model.Message{}); err != nil {
+	db := database.GetDB()
+
+	// 自动迁移表结构
+	if err := db.AutoMigrate(&model.User{}, &model.Message{}); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
 	// 2. 初始化Redis
 	if err := redis.InitRedis(); err != nil {
-		log.Fatalf("Failed to initialize Redis: %v", err)
+		log.Printf("警告：Redis连接失败: %v，程序将继续运行", err)
+	} else {
+		log.Println("Redis连接成功")
 	}
 
 	// 3. 初始化邮件配置
@@ -74,7 +79,7 @@ func main() {
 	}))
 
 	// 5. 初始化依赖
-	db := database.GetDB()
+	db = database.GetDB()
 
 	// 初始化用户相关依赖
 	userRepo := repository.NewUserRepository(db)
@@ -103,6 +108,7 @@ func main() {
 			// 消息相关
 			users.POST("/messages", messageHandler.CreateMessage)
 			users.GET("/messages", messageHandler.GetMessages)
+			users.POST("/getUserMessages", messageHandler.GetUserMessages)
 		}
 	}
 

@@ -12,13 +12,13 @@ var (
 
 // Claims 自定义JWT声明
 type Claims struct {
-	UserID string `json:"user_id"`
+	UserID uint64 `json:"user_id"`
 	Email  string `json:"email"`
 	jwt.RegisteredClaims
 }
 
 // GenerateToken 生成JWT token
-func GenerateToken(userID string, email string) (string, error) {
+func GenerateToken(userID uint64, email string) (string, error) {
 	now := time.Now()
 	expireTime := now.Add(24 * time.Hour)
 

@@ -10,7 +10,7 @@ type RegisterRequest struct {
 
 // RegisterResponse 用户注册响应
 type RegisterResponse struct {
-	UserID    string `json:"user_id"`
+	UserID    uint64 `json:"user_id"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`
 	CreatedAt string `json:"created_at"`
@@ -24,7 +24,7 @@ type LoginRequest struct {
 
 // LoginResponse 用户登录响应
 type LoginResponse struct {
-	UserID     string `json:"user_id"`
+	UserID     uint64 `json:"user_id"`
 	Username   string `json:"username"`
 	Email      string `json:"email"`
 	Token      string `json:"token"`
@@ -33,19 +33,25 @@ type LoginResponse struct {
 
 // UpdateUsernameRequest 更新用户名请求
 type UpdateUsernameRequest struct {
-	UserID   string `json:"userId" binding:"required"`
+	UserID   uint64 `json:"userId" binding:"required"`
 	Username string `json:"username" binding:"required,min=3,max=20"`
 }
 
 // ResetPasswordRequest 重置密码请求
 type ResetPasswordRequest struct {
-	UserID   string `json:"userId" binding:"required"`
+	UserID   uint64 `json:"userId" binding:"required"`
+	Password string `json:"password" binding:"required,min=6,max=20"`
+}
+
+// UpdatePasswordRequest 更新密码请求
+type UpdatePasswordRequest struct {
+	UserID   uint64 `json:"userId" binding:"required"`
 	Password string `json:"password" binding:"required,min=6,max=20"`
 }
 
 // UserResponse 用户响应
 type UserResponse struct {
-	ID        string `json:"id"`
+	UserID    uint64 `json:"user_id"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`
 	CreatedAt string `json:"createdAt"`

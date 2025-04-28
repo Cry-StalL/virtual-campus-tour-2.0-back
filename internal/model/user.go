@@ -6,7 +6,7 @@ import (
 
 // User 表示用户信息
 type User struct {
-	ID        string    `json:"id" gorm:"primaryKey"`
+	ID        uint64    `json:"id" gorm:"primaryKey"`
 	Username  string    `json:"username" gorm:"unique;not null"`
 	Password  string    `json:"-" gorm:"not null"` // 密码不返回给前端
 	Email     string    `json:"email" gorm:"unique;not null"`

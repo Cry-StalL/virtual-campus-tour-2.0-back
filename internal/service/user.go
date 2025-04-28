@@ -165,11 +165,11 @@ func (s *UserService) CreateUser(username, email, password string) (*model.User,
 }
 
 // UpdateUsername 更新用户名
-func (s *UserService) UpdateUsername(userID, newUsername string) error {
+func (s *UserService) UpdateUsername(userID uint64, newUsername string) error {
 	// 检查用户是否存在
 	_, err := s.repo.GetByID(userID)
 	if err != nil {
-		return errors.New("用户不存在")
+		return err
 	}
 
 	// 检查新用户名是否已存在
@@ -186,11 +186,11 @@ func (s *UserService) UpdateUsername(userID, newUsername string) error {
 }
 
 // UpdatePassword 更新密码
-func (s *UserService) UpdatePassword(userID, newPassword string) error {
+func (s *UserService) UpdatePassword(userID uint64, newPassword string) error {
 	// 检查用户是否存在
 	_, err := s.repo.GetByID(userID)
 	if err != nil {
-		return errors.New("用户不存在")
+		return err
 	}
 
 	// 加密新密码
