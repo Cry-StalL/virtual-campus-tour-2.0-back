@@ -68,6 +68,16 @@ func main() {
 	// 4. 创建 Gin 引擎
 	r := gin.Default()
 
+	// 配置静态文件服务，用于存储和访问全景图资源
+	staticFS := r.Group("/assets")
+	staticFS.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type")
+		c.Next()
+	})
+	staticFS.Static("/", "./assets")
+
 	// 添加CORS中间件
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"}, // 允许所有来源，实际生产环境建议指定具体域名
@@ -78,16 +88,16 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+<<<<<<< HEAD
 	// 5. 初始化依赖
 	db = database.GetDB()
+=======
+	// 5. 初始化处理器
+	userHandler := handler.NewUserHandler()
+>>>>>>> 8c80ad534dc0a99b86c3b040525f0238dd8298a4
 
-	// 初始化用户相关依赖
-	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
-
-	// 初始化消息相关依赖
-	messageRepo := repository.NewMessageRepository(db)
+	// 初始化消息相关的依赖
+	messageRepo := repository.NewMessageRepository(database.GetDB())
 	messageService := service.NewMessageService(messageRepo)
 	messageHandler := handler.NewMessageHandler(messageService)
 
@@ -96,16 +106,13 @@ func main() {
 	{
 		users := v1.Group("/users")
 		{
-			// 用户认证相关
 			users.POST("/email-code", userHandler.GetEmailCode)
 			users.POST("/register", userHandler.Register)
 			users.POST("/login", userHandler.Login)
-
-			// 用户信息修改相关
 			users.POST("/updateUsername", userHandler.UpdateUsername)
 			users.POST("/resetPassword", userHandler.ResetPassword)
 
-			// 消息相关
+			// 消息相关路由
 			users.POST("/messages", messageHandler.CreateMessage)
 			users.GET("/messages", messageHandler.GetMessages)
 			users.POST("/getUserMessages", messageHandler.GetUserMessages)
