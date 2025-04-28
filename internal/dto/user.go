@@ -10,7 +10,11 @@ type RegisterRequest struct {
 
 // RegisterResponse 用户注册响应
 type RegisterResponse struct {
+<<<<<<< HEAD
+	UserID    uint64 `json:"user_id"`
+=======
 	UserID    uint   `json:"user_id"`
+>>>>>>> 8c80ad534dc0a99b86c3b040525f0238dd8298a4
 	Username  string `json:"username"`
 	Email     string `json:"email"`
 	CreatedAt string `json:"created_at"`
@@ -24,7 +28,11 @@ type LoginRequest struct {
 
 // LoginResponse 用户登录响应
 type LoginResponse struct {
+<<<<<<< HEAD
+	UserID     uint64 `json:"user_id"`
+=======
 	UserID     uint   `json:"user_id"`
+>>>>>>> 8c80ad534dc0a99b86c3b040525f0238dd8298a4
 	Username   string `json:"username"`
 	Email      string `json:"email"`
 	Token      string `json:"token"`
@@ -33,6 +41,10 @@ type LoginResponse struct {
 
 // UpdateUsernameRequest 更新用户名请求
 type UpdateUsernameRequest struct {
+<<<<<<< HEAD
+	UserID   uint64 `json:"userId" binding:"required"`
+	Username string `json:"username" binding:"required,min=3,max=20"`
+=======
 	UserID   uint   `json:"userId" binding:"required"`
 	Username string `json:"username" binding:"required,min=4,max=20"`
 }
@@ -41,10 +53,30 @@ type UpdateUsernameRequest struct {
 type UpdateUsernameResponse struct {
 	Username   string `json:"username"`
 	UpdateTime string `json:"updateTime"`
+>>>>>>> 8c80ad534dc0a99b86c3b040525f0238dd8298a4
 }
 
 // ResetPasswordRequest 重置密码请求
 type ResetPasswordRequest struct {
+<<<<<<< HEAD
+	UserID   uint64 `json:"userId" binding:"required"`
+	Password string `json:"password" binding:"required,min=6,max=20"`
+}
+
+// UpdatePasswordRequest 更新密码请求
+type UpdatePasswordRequest struct {
+	UserID   uint64 `json:"userId" binding:"required"`
+	Password string `json:"password" binding:"required,min=6,max=20"`
+}
+
+// UserResponse 用户响应
+type UserResponse struct {
+	UserID    uint64 `json:"user_id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+=======
 	UserID   uint   `json:"userId" binding:"required"`
 	Password string `json:"password" binding:"required,min=6,max=20"`
 }
@@ -52,4 +84,5 @@ type ResetPasswordRequest struct {
 // ResetPasswordResponse 重置密码响应
 type ResetPasswordResponse struct {
 	UpdateTime string `json:"updateTime"`
+>>>>>>> 8c80ad534dc0a99b86c3b040525f0238dd8298a4
 }
