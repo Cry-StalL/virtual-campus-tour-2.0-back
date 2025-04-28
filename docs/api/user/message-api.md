@@ -11,7 +11,7 @@
 ```typescript
 {
   content: string;      // 留言内容
-  userId: unsigned big int;       // 用户ID
+  userId: string;       // 用户ID
   username: string;     // 用户名
   panoramaId: string;   // 全景图场景ID
 }
