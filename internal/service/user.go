@@ -122,55 +122,10 @@ func (s *UserService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
 }
 
 // UpdateUsername 更新用户名
-<<<<<<< HEAD
-func (s *UserService) UpdateUsername(userID uint64, newUsername string) error {
-	// 检查用户是否存在
-	_, err := s.repo.GetByID(userID)
-	if err != nil {
-		return err
-	}
-
-	// 检查新用户名是否已存在
-	exists, err := s.repo.CheckUsernameExists(newUsername)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return errors.New("用户名已被占用")
-	}
-
-	// 更新用户名
-	return s.repo.UpdateUsername(userID, newUsername)
-}
-
-// UpdatePassword 更新密码
-func (s *UserService) UpdatePassword(userID uint64, newPassword string) error {
-	// 检查用户是否存在
-	_, err := s.repo.GetByID(userID)
-	if err != nil {
-		return err
-	}
-
-	// 加密新密码
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	// 更新密码
-	return s.repo.UpdatePassword(userID, string(hashedPassword))
-}
-
-// VerifyUser 验证用户
-func (s *UserService) VerifyUser(email, password string) (*model.User, error) {
-	user, err := s.repo.GetByEmail(email)
-	if err != nil {
-=======
 func (s *UserService) UpdateUsername(req *dto.UpdateUsernameRequest) (*dto.UpdateUsernameResponse, error) {
 	// 检查用户是否存在
 	var user model.User
 	if err := database.GetDB().First(&user, req.UserID).Error; err != nil {
->>>>>>> 8c80ad534dc0a99b86c3b040525f0238dd8298a4
 		return nil, errors.New("用户不存在")
 	}
 

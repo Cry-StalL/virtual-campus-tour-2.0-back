@@ -27,12 +27,3 @@ func (r *MessageRepository) GetByPanoramaID(panoramaID string) ([]model.Message,
 		Find(&messages).Error
 	return messages, err
 }
-
-// GetByUserID 获取指定用户的所有留言
-func (r *MessageRepository) GetByUserID(userID uint64) ([]model.Message, error) {
-	var messages []model.Message
-	err := r.db.Where("user_id = ?", userID).
-		Order("created_at DESC").
-		Find(&messages).Error
-	return messages, err
-}
