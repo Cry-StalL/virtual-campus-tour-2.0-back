@@ -105,6 +105,8 @@ func main() {
 			// 消息相关路由
 			users.POST("/messages", messageHandler.CreateMessage)
 			users.GET("/messages", messageHandler.GetMessages)
+			users.GET("/getUserMessages", messageHandler.GetUserMessages)
+			users.POST("/getUserMessages", messageHandler.GetUserMessages)
 		}
 	}
 
