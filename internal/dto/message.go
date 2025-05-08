@@ -16,7 +16,8 @@ type MessageResponse struct {
 	UserID     int    `json:"userId"`
 	Username   string `json:"username"`
 	PanoramaID string `json:"panoramaId"`
-	CreatedAt  string `json:"createdAt"`
+	Location   string `json:"location"`
+	CreateTime string `json:"createTime"`
 }
 
 // GetMessagesRequest 获取留言列表请求

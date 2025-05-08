@@ -254,3 +254,38 @@ func (h *UserHandler) GetEmailCode(c *gin.Context) {
 		"data":    resp,
 	})
 }
+
+// GetUserCreationTime 处理获取用户创建时间请求
+func (h *UserHandler) GetUserCreationTime(c *gin.Context) {
+	var req dto.GetUserCreationTimeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误: " + err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	resp, err := h.userService.GetUserCreationTime(&req)
+	if err != nil {
+		code := 400
+		message := err.Error()
+		switch message {
+		case "用户不存在":
+			code = 1001
+		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    code,
+			"message": message,
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "获取成功",
+		"data":    resp.CreateTime,
+	})
+}
