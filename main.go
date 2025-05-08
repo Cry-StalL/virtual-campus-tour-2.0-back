@@ -101,6 +101,7 @@ func main() {
 			users.POST("/login", userHandler.Login)
 			users.POST("/updateUsername", userHandler.UpdateUsername)
 			users.POST("/resetPassword", userHandler.ResetPassword)
+			users.POST("/getUserCreationTime", userHandler.GetUserCreationTime)
 
 			// 消息相关路由
 			users.POST("/messages", messageHandler.CreateMessage)

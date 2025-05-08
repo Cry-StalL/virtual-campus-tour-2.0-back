@@ -98,9 +98,23 @@ func (h *MessageHandler) GetUserMessages(c *gin.Context) {
 		return
 	}
 
+	// 转换消息格式
+	var responseMessages []dto.MessageResponse
+	for _, msg := range messages {
+		responseMessages = append(responseMessages, dto.MessageResponse{
+			ID:         msg.ID,
+			Content:    msg.Content,
+			UserID:     int(msg.UserID),
+			Username:   msg.Username,
+			PanoramaID: msg.PanoramaID,
+			Location:   msg.Location,
+			CreateTime: msg.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "获取成功",
-		"data":    messages,
+		"data":    responseMessages,
 	})
 }

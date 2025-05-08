@@ -53,3 +53,13 @@ type ResetPasswordRequest struct {
 type ResetPasswordResponse struct {
 	UpdateTime string `json:"updateTime"`
 }
+
+// GetUserCreationTimeRequest 获取用户创建时间请求
+type GetUserCreationTimeRequest struct {
+	UserID uint `json:"userId" binding:"required"`
+}
+
+// GetUserCreationTimeResponse 获取用户创建时间响应
+type GetUserCreationTimeResponse struct {
+	CreateTime string `json:"createTime"`
+}

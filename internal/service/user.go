@@ -171,3 +171,15 @@ func (s *UserService) ResetPassword(req *dto.ResetPasswordRequest) (*dto.ResetPa
 		UpdateTime: user.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
+
+// GetUserCreationTime 获取用户创建时间
+func (s *UserService) GetUserCreationTime(req *dto.GetUserCreationTimeRequest) (*dto.GetUserCreationTimeResponse, error) {
+	var user model.User
+	if err := database.GetDB().First(&user, req.UserID).Error; err != nil {
+		return nil, errors.New("用户不存在")
+	}
+
+	return &dto.GetUserCreationTimeResponse{
+		CreateTime: user.CreatedAt.Format("2006-01-02"),
+	}, nil
+}
