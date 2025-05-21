@@ -16,7 +16,6 @@ type CreateMessageRequest struct {
 	UserID     uint64   `json:"userId" binding:"required"`
 	Username   string   `json:"username" binding:"required"`
 	PanoramaID string   `json:"panoramaId" binding:"required"`
-	Location   string   `json:"location" binding:"required"` // 位置描述
 	Position   Position `json:"position" binding:"required"` // 经纬度坐标
 }
 
@@ -27,7 +26,7 @@ type MessageResponse struct {
 	UserID     uint64    `json:"userId"`
 	Username   string    `json:"username"`
 	PanoramaID string    `json:"panoramaId"`
-	Location   string    `json:"location"` // 位置描述
+	Location   string    `json:"location"` // 位置描述（可选）
 	Position   Position  `json:"position"` // 经纬度坐标
 	CreatedAt  time.Time `json:"createdAt"`
 }
