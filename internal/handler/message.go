@@ -72,8 +72,16 @@ func (h *MessageHandler) GetMessages(c *gin.Context) {
 
 // GetUserMessages 获取用户的所有留言
 func (h *MessageHandler) GetUserMessages(c *gin.Context) {
-	userID := c.GetUint64("userID")
-	if userID == 0 {
+	var req dto.GetUserMessagesRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    1,
+			"message": "无效的请求参数: " + err.Error(),
+		})
+		return
+	}
+
+	if req.UserID == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    1,
 			"message": "无效的用户ID",
@@ -81,7 +89,7 @@ func (h *MessageHandler) GetUserMessages(c *gin.Context) {
 		return
 	}
 
-	messages, err := h.service.GetMessagesByUserID(userID)
+	messages, err := h.service.GetMessagesByUserID(req.UserID)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    1,
