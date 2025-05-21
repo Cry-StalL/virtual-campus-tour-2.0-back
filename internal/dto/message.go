@@ -39,7 +39,7 @@ type UserMessageResponse struct {
 	Username   string    `json:"username"`
 	PanoramaID string    `json:"panoramaId"`
 	Location   string    `json:"location"` // 位置描述
-	CreatedAt  time.Time `json:"createdAt"`
+	CreateTime time.Time `json:"createTime"`
 }
 
 // GetMessagesRequest 获取留言列表请求

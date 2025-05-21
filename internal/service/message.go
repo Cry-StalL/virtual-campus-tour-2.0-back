@@ -95,7 +95,7 @@ func (s *MessageService) GetMessagesByUserID(userID uint64) ([]*dto.UserMessageR
 			Username:   msg.Username,
 			PanoramaID: msg.PanoramaID,
 			Location:   msg.Location,
-			CreatedAt:  msg.CreatedAt,
+			CreateTime: msg.CreatedAt,
 		})
 	}
 
