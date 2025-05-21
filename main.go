@@ -108,6 +108,7 @@ func main() {
 			users.GET("/messages", messageHandler.GetMessages)
 			users.GET("/getUserMessages", messageHandler.GetUserMessages)
 			users.POST("/getUserMessages", messageHandler.GetUserMessages)
+			users.POST("/deleteMessage", messageHandler.DeleteMessage)
 		}
 	}
 
