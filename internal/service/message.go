@@ -80,26 +80,22 @@ func (s *MessageService) GetMessagesByPanoramaID(panoramaID string) ([]*dto.Mess
 }
 
 // GetMessagesByUserID 获取指定用户的所有留言
-func (s *MessageService) GetMessagesByUserID(userID uint64) ([]*dto.MessageResponse, error) {
+func (s *MessageService) GetMessagesByUserID(userID uint64) ([]*dto.UserMessageResponse, error) {
 	messages, err := s.repo.GetByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	responses := make([]*dto.MessageResponse, 0, len(messages))
+	responses := make([]*dto.UserMessageResponse, 0, len(messages))
 	for _, msg := range messages {
-		responses = append(responses, &dto.MessageResponse{
+		responses = append(responses, &dto.UserMessageResponse{
 			MessageID:  msg.ID,
 			Content:    msg.Content,
 			UserID:     msg.UserID,
 			Username:   msg.Username,
 			PanoramaID: msg.PanoramaID,
 			Location:   msg.Location,
-			Position: dto.Position{
-				Longitude: msg.Longitude,
-				Latitude:  msg.Latitude,
-			},
-			CreatedAt: msg.CreatedAt,
+			CreatedAt:  msg.CreatedAt,
 		})
 	}
 

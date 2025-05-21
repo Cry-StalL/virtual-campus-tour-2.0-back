@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"virtual-campus-tour-2.0-back/internal/dto"
@@ -69,28 +70,29 @@ func (h *MessageHandler) GetMessages(c *gin.Context) {
 	})
 }
 
-// GetUserMessages 获取用户留言
+// GetUserMessages 获取用户的所有留言
 func (h *MessageHandler) GetUserMessages(c *gin.Context) {
-	var req dto.GetUserMessagesRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "无效的请求参数: " + err.Error(),
+	userID := c.GetUint64("userID")
+	if userID == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    1,
+			"message": "无效的用户ID",
 		})
 		return
 	}
 
-	messages, err := h.service.GetMessagesByUserID(req.UserID)
+	messages, err := h.service.GetMessagesByUserID(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "获取留言失败: " + err.Error(),
+		c.JSON(http.StatusOK, gin.H{
+			"code":    1,
+			"message": fmt.Sprintf("获取用户留言失败: %v", err),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
+		"code":    0,
+		"message": "获取用户留言成功",
 		"data":    messages,
 	})
 }
