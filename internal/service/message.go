@@ -26,7 +26,7 @@ func (s *MessageService) CreateMessage(req *dto.CreateMessageRequest) (*dto.Mess
 		UserID:     req.UserID,
 		Username:   req.Username,
 		PanoramaID: req.PanoramaID,
-		Location:   req.Location,
+		Location:   "未设置位置", // 设置默认位置描述
 		Longitude:  req.Position.Longitude,
 		Latitude:   req.Position.Latitude,
 		CreatedAt:  time.Now(),
