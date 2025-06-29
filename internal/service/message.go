@@ -18,6 +18,29 @@ func NewMessageService(repo *repository.MessageRepository) *MessageService {
 	return &MessageService{repo: repo}
 }
 
+// getLocationByPanoramaID 根据全景图ID获取对应的位置名称
+func getLocationByPanoramaID(panoramaID string) string {
+	locationMap := map[string]string{
+		"hl_2":           "瀚林二号",
+		"hl_3":           "瀚林三号",
+		"hq_4":           "瀚林四号",
+		"hq2_3":          "海琴三号、四号",
+		"jxl":            "教学楼",
+		"rygc":           "榕园广场",
+		"south_gate":     "南门",
+		"tqzx":           "天琴中心",
+		"tsg":            "图书馆",
+		"tyc":            "体育场",
+		"yinhu":          "隐湖",
+		"zhongshanxiang": "中山像",
+	}
+
+	if location, exists := locationMap[panoramaID]; exists {
+		return location
+	}
+	return "未知位置" // 如果找不到对应的位置，返回默认值
+}
+
 // CreateMessage 创建新留言
 func (s *MessageService) CreateMessage(req *dto.CreateMessageRequest) (*dto.MessageResponse, error) {
 	message := &model.Message{
@@ -26,7 +49,7 @@ func (s *MessageService) CreateMessage(req *dto.CreateMessageRequest) (*dto.Mess
 		UserID:     req.UserID,
 		Username:   req.Username,
 		PanoramaID: req.PanoramaID,
-		Location:   "未设置位置", // 设置默认位置描述
+		Location:   getLocationByPanoramaID(req.PanoramaID), // 根据全景图ID设置位置
 		Longitude:  req.Position.Longitude,
 		Latitude:   req.Position.Latitude,
 		CreatedAt:  time.Now(),
