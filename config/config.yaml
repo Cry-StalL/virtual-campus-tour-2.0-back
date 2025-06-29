@@ -22,9 +22,9 @@ redis:
 email:
   host: smtp.qq.com  # QQ邮箱SMTP服务器地址
   port: 587         # QQ邮箱SMTP服务器端口
-  username: 442085931@qq.com  # 你的QQ邮箱地址
-  password: azqygoazqxrrbhjj  # 你的QQ邮箱授权码（不是QQ密码）
-  from: 442085931@qq.com  # 发件人邮箱（同username）
+  username: virtual_sysu_tour@qq.com  # 你的QQ邮箱地址
+  password: kfiwtbgxpuencdgi  # 你的QQ邮箱授权码（不是QQ密码）
+  from: virtual_sysu_tour@qq.com  # 发件人邮箱（同username）
 
 test:
   database:
