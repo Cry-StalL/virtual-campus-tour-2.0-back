@@ -16,20 +16,30 @@ type CreateMessageRequest struct {
 	UserID     uint64   `json:"userId" binding:"required"`
 	Username   string   `json:"username" binding:"required"`
 	PanoramaID string   `json:"panoramaId" binding:"required"`
-	Location   string   `json:"location" binding:"required"` // 位置描述
 	Position   Position `json:"position" binding:"required"` // 经纬度坐标
 }
 
-// MessageResponse 留言响应
+// MessageResponse 留言响应（用于创建和获取留言列表）
 type MessageResponse struct {
 	MessageID  string    `json:"messageId"`
 	Content    string    `json:"content"`
 	UserID     uint64    `json:"userId"`
 	Username   string    `json:"username"`
 	PanoramaID string    `json:"panoramaId"`
-	Location   string    `json:"location"` // 位置描述
+	Location   string    `json:"location"` // 位置描述（可选）
 	Position   Position  `json:"position"` // 经纬度坐标
 	CreatedAt  time.Time `json:"createdAt"`
+}
+
+// UserMessageResponse 用户留言响应（用于获取用户留言）
+type UserMessageResponse struct {
+	MessageID  string    `json:"messageId"`
+	Content    string    `json:"content"`
+	UserID     uint64    `json:"userId"`
+	Username   string    `json:"username"`
+	PanoramaID string    `json:"panoramaId"`
+	Location   string    `json:"location"` // 位置描述
+	CreateTime time.Time `json:"createTime"`
 }
 
 // GetMessagesRequest 获取留言列表请求
