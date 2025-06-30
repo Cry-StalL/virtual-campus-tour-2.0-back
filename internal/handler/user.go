@@ -171,9 +171,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 		message := err.Error()
 		switch message {
 		case "该邮箱尚未注册，请先注册":
-			code = 1001
-		case "密码错误":
 			code = 1002
+		case "密码错误":
+			code = 1003
 		}
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    code,
