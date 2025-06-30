@@ -23,7 +23,7 @@ func getLocationByPanoramaID(panoramaID string) string {
 	locationMap := map[string]string{
 		"hl_2":           "瀚林二号",
 		"hl_3":           "瀚林三号",
-		"hq_4":           "瀚林四号",
+		"hq_4":           "海琴四号",
 		"hq2_3":          "海琴三号、四号",
 		"jxl":            "教学楼",
 		"rygc":           "榕园广场",
